@@ -70,7 +70,7 @@ There are many possibilities for configurable modes of operation, but the follow
 
 This project is constructed with an embedded system and a general-purpose computer or other MIDI host like a synthesizer. The embedded system is composed of wearable accelerometers and a radio frequency (RF) transmitter run by the first microcontroller unit (MCU), with the RF receiver run by the second microcontroller that also generates MIDI output. The MIDI data is then used as input to a host program on a personal computer (PC) for further data interpretation and audio generation. Although using a PC as the MIDI host is a more flexible option, the design of the embedded system is able to act as a standalone MIDI controller for interaction with other industry standard MIDI equipment. The following diagram describes the system from a high level.
 
-![System level diagram](https://courses.cit.cornell.edu/ee476/FinalProjects/s2007/njw23_abg34/block-diagram.png)
+![System level diagram](block-diagram.png)
 
 The green blocks represent hardware that is worn by the user. This may be referred to as the "dancer-side" hardware. The blue blocks represent the hardware that composes the base-station. The base station has a MIDI port which can connect either directly to a synthesizer or to a computer with a program such as Max/MSP. The base station is capable of basic motion analysis and is capable of sending MIDI note-on and note-off commands to control a synthesizer. However, for maximum flexibility, a program such as Max/MSP is required. When using the program, the base station sends commands containing raw data from the accelerometers in the form of Control Change MIDI messages. The dancer-side hardware communicates with the base station via a 2.4GHz wireless link.
 
@@ -88,29 +88,29 @@ The data is intended to be used for motion capture or analysis, and as such, a f
 
 Due to the importance of the quality of the wireless link for this project, a lot of design work was put into the hardware for the AT86RF230. The circuit built is taken directly from the application schematic included in Atmel's [datasheet for the AT86RF230](http://www.atmel.com/dyn/resources/prod_documents/doc5131.pdf).
 
-![AT86RF230 schematic](https://courses.cit.cornell.edu/ee476/FinalProjects/s2007/njw23_abg34/at86rf230-schematic.gif)
+![AT86RF230 schematic](at86rf230-schematic.gif)
 
 The bill of materials (BOM) for the circuit includes a 100 ohm to 50 ohm balun transformer. The RF output of the radio is a balanced output, but a balun allows for the use of a single-ended antenna.
 
 The layout for a circuit operating at 2.4GHz was a tricky task. The book "EMC and the Printed Circuit Board" by Mark I. Montrose was used heavily as a reference while making the design. The area of particular concern was the connection to the antenna. A Linx CHP series antenna was used due to its extremely low profile, but the antenna requires an area of a ground-plane in order to operate properly. The ground plane must be clear underneath the antenna, however. As the radio is physically separated from the antenna, a microstrip transmission line was designed to connect the radio to the antenna. The microstrip is designed to be 1/2 wavelength long at 2.45GHz and 50 ohms for a PC board with no silkscreen, a copper thickness of 1.7 mils, and an FR4 board thickness of 62 mils. A microstrip transmission line impedance calculator was used to aid in the design. The calculator is called AppCAD by Agilent and can be found free of charge at [http://www.hp.woodshot.com](http://www.hp.woodshot.com). The board was purchased from ExpressPCB and designed with software provided by ExpressPCB. The footprint of the AT86RF230 was designed using the JEDEC standard J-STD-020C as a reference. The pad lengths were extended substantially to allow for hand soldering. The completed layout is depicted below.
 
-![Wireless layout](https://courses.cit.cornell.edu/ee476/FinalProjects/s2007/njw23_abg34/wireless-layout.gif)
+![Wireless layout](wireless-layout.gif)
 
 The schematic corresponding to this design is depicted below. The connector is designed with a 0.1" spacing, suitable for a breadboard or a [Bruce Land PCB](http://www.nbb.cornell.edu/neurobio/land/PROJECTS/Protoboard476/index.html). Note that the AT86RF230 requires its own crystal oscillator for proper frequency accuracy and stability to ensure operation in the worldwide unlicensed frequency band, between 2400 MHz and 2485 MHz. C1 and C2 are also 0805 surface mount 12pF capacitors and are not available in lab, but are very inexpensive when purchased from Digikey.
 
-![RF transceiver schematic](https://courses.cit.cornell.edu/ee476/FinalProjects/s2007/njw23_abg34/wireless-schematic.gif)
+![RF transceiver schematic](wireless-schematic.gif)
 
 ### Dancer-side Hardware
 
 The RF transceiver circuit is identical on both the dancer-side and the base-station. The dancer-side schematic shown below describes the SPI connections between the MCU and the accelerometers and transceiver. The transceiver's extra control signals, connected to MCU general purpose input/output (GPIO), are also shown below. The light-emitting diode (LED) is used to indicate whether or not RF communication is active. The bank of capacitors by the accelerometers is required for noise immunity. These capacitors were provided with the accelerometers on interface boards provided by Kionix. The circuit runs off of battery power, and requires 2 1.5V AA batteries.
 
-![Dancer-side schematic](https://courses.cit.cornell.edu/ee476/FinalProjects/s2007/njw23_abg34/dancer-side-schematic.gif)
+![Dancer-side schematic](dancer-side-schematic.gif)
 
 ### Base Station Hardware
 
 The base-station schematic is diagrammed below. This circuit requires a 5V power supply. As it draws less than 100mA, this power can be easily provided directly from a USB port. We stripped an old USB cable to provide power to our circuit. The MIDI OUT circuit was built from the MIDI Manufacturers Association (MMA) [MIDI Electrical Specification Diagram](https://www.midi.org/specifications/item/midi-din-electrical-specification), which describes the electronic specifics of the MIDI standard. While the MIDI OUT circuit requires 5 volts, the rest of the components run off of 3 volts, so a 3V regulator is used. The regulator used is an inexpensive linear regulator. Like with the dancer-side hardware, an LED is used to indicate whether or not wireless communication is active. MIDI is controlled from the UART (universal asynchronous receiver/transmitter). Only the TXD port of the UART is required for our one-way outgoing MIDI communication. A DIN-5 connector is used to connect MIDI cables to the circuit, which is the standard for MIDI ports, although only 3 of the 5 pins are connected to the circuit.
 
-![Base-station schematic](https://courses.cit.cornell.edu/ee476/FinalProjects/s2007/njw23_abg34/base-station-hardware.gif)
+![Base-station schematic](base-station-hardware.gif)
 
 After constructing all the hardware, most worked very well. The biggest problem encountered was with the SPI connections to the accelerometers. The cables used are rather long, and at 4MHz, the lines were far too noisy. After slowing the SPI communication rate for the accelerometers to 500KHz, we could communicate clearly. For a better product, better cables would be used, which would include shielding and twisted pairs of wires, to limit cross-talk. Transmission-line matching techniques may also be used to limit reflections on the lines.
 
